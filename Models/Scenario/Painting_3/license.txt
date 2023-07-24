@@ -1,0 +1,11 @@
+Model Information:
+* title:	My father’s painting
+* source:	https://sketchfab.com/3d-models/my-fathers-painting-93963a741bfe4fc7814538ba30f44a84
+* author:	avi (https://sketchfab.com/avi)
+
+Model License:
+* license type:	CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions must have the same license.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "My father’s painting" (https://sketchfab.com/3d-models/my-fathers-painting-93963a741bfe4fc7814538ba30f44a84) by avi (https://sketchfab.com/avi) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)

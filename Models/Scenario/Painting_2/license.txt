@@ -1,0 +1,11 @@
+Model Information:
+* title:	Abstract Painting
+* source:	https://sketchfab.com/3d-models/abstract-painting-99c8a38ff46542da8cdffbd53965a251
+* author:	VRJuice (https://sketchfab.com/dr490n)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Abstract Painting" (https://sketchfab.com/3d-models/abstract-painting-99c8a38ff46542da8cdffbd53965a251) by VRJuice (https://sketchfab.com/dr490n) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
