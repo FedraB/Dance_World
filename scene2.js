@@ -1,8 +1,6 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {RectAreaLightHelper} from 'three/addons/helpers/RectAreaLightHelper.js';
 
 function main() {
     
@@ -120,12 +118,12 @@ function main() {
   const lingoColor = 0xc19552;
   const lingoIntensity = 10;
   const lingoLight = new THREE.PointLight(lingoColor, lingoIntensity);
-  lingoLight.distance = 1000
+  lingoLight.distance = 1000;
   lingoLight.castShadow = true;
   lingoLight.position.set(-25,85,85);
   scene.add(lingoLight);
-  const helper = new THREE.PointLightHelper(lingoLight);
-  scene.add(helper);
+  /*const helper = new THREE.PointLightHelper(lingoLight);
+  scene.add(helper);*/
 
   // LOADERS
   const loader = new GLTFLoader();

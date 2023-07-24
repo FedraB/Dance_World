@@ -32,10 +32,9 @@ function main() {
 
     // CAMERA ORBIT CONTROLS
     const controls = new OrbitControls(camera, renderer.domElement);
-    //controls.enableDamping = true
     controls.minDistance = 5
     controls.maxDistance = 150
-    //controls.enablePan = false
+    controls.enablePan = false
     controls.maxPolarAngle = Math.PI / 2 - 0.05
     controls.target.set(0,60,0)
     controls.update();

@@ -1,8 +1,6 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {RectAreaLightUniformsLib} from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import {RectAreaLightHelper} from 'three/addons/helpers/RectAreaLightHelper.js';
 
 function main() {
     
@@ -13,7 +11,7 @@ function main() {
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
-    renderer.setClearColor( 0xB7C3F3, 1 )
+    renderer.setClearColor( 0xB7C3F3, 1 );
     RectAreaLightUniformsLib.init();
     renderer.shadowMap.enabled =true;
 
