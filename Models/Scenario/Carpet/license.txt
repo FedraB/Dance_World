@@ -1,0 +1,11 @@
+Model Information:
+* title:	Red Carpet
+* source:	https://sketchfab.com/3d-models/red-carpet-8bcf19cc1b3148868930da346fa903bf
+* author:	XperienciaVirtual (https://sketchfab.com/XperienciaVirtual)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Red Carpet" (https://sketchfab.com/3d-models/red-carpet-8bcf19cc1b3148868930da346fa903bf) by XperienciaVirtual (https://sketchfab.com/XperienciaVirtual) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

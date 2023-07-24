@@ -1,0 +1,11 @@
+Model Information:
+* title:	Dance Dance Revolution
+* source:	https://sketchfab.com/3d-models/dance-dance-revolution-80e09c2daea44bf38f22545b04532d74
+* author:	Victoria Reinhold (https://sketchfab.com/reinhold)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Dance Dance Revolution" (https://sketchfab.com/3d-models/dance-dance-revolution-80e09c2daea44bf38f22545b04532d74) by Victoria Reinhold (https://sketchfab.com/reinhold) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
