@@ -1,0 +1,11 @@
+Model Information:
+* title:	ARCADE Machine by team PLOG
+* source:	https://sketchfab.com/3d-models/arcade-machine-by-team-plog-84ebb3d3d3f147c4813766508e97937f
+* author:	AccidentalGenius (https://sketchfab.com/AccidentalGenius)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "ARCADE Machine by team PLOG" (https://sketchfab.com/3d-models/arcade-machine-by-team-plog-84ebb3d3d3f147c4813766508e97937f) by AccidentalGenius (https://sketchfab.com/AccidentalGenius) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

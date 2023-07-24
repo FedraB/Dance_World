@@ -1,0 +1,11 @@
+Model Information:
+* title:	DDR-A Cabinet
+* source:	https://sketchfab.com/3d-models/ddr-a-cabinet-6e692f7468064287a791a922c8999f18
+* author:	AshleyR (https://sketchfab.com/diepete123)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "DDR-A Cabinet" (https://sketchfab.com/3d-models/ddr-a-cabinet-6e692f7468064287a791a922c8999f18) by AshleyR (https://sketchfab.com/diepete123) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
