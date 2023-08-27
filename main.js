@@ -217,7 +217,7 @@ function main() {
         let mainCharacterName = null;
 
         //MODELS
-        let luarModel, melindaModel;
+        let luarModel, melindaModel, lingoModel;
 
         //CHARACTERS
         loader.load('./Models/Characters/Luar.glb', (gltf) => {
@@ -677,18 +677,16 @@ function main() {
             scene.clear();
 
             // CAMERA ORBIT CONTROLS
-            {
-                const controls = new OrbitControls(camera, renderer.domElement);
-                controls.minDistance = 5
-                controls.maxDistance = 150
-                controls.enablePan = false
-                controls.maxPolarAngle = Math.PI / 2 - 0.05
-                controls.target.set(0,60,0)
-                controls.update();
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.minDistance = 5
+            controls.maxDistance = 150
+            controls.enablePan = false
+            controls.maxPolarAngle = Math.PI / 2 - 0.05
+            controls.target.set(0,60,0)
+            controls.update();
 
-                camera.position.set(0,400,1000);
-                controls.update();
-            }
+            camera.position.set(0,400,1000);
+            controls.update();
 
             //LIGHT
             {  
@@ -927,16 +925,19 @@ function main() {
             backButton.addEventListener('click', () => {
                 scene.clear();
                 buttonsDiv.remove();
+                controls.dispose();
                 init();
             });
 
             machine1Button.addEventListener('click', () => {
                 buttonsDiv.remove();
+                controls.dispose();
                 selectMachine("Machine1");
             });
 
             machine2Button.addEventListener('click', () => {
                 buttonsDiv.remove();
+                controls.dispose();
                 selectMachine("Machine2");
             });
 
@@ -1417,10 +1418,12 @@ function main() {
 
             //GAME OBJECTS
             loader.load('./Models/Characters/Lingo/scene.gltf', (gltf) => {
-                scene.add(gltf.scene);
-                gltf.scene.position.set(-45, 85, 65);
-                gltf.scene.scale.set(45,45,45);
-                gltf.scene.rotation.y = 1;
+                lingoModel = gltf.scene;
+                lingoModel.position.set(-45, 85, 65);
+                lingoModel.scale.set(45,45,45);
+                lingoModel.rotation.y = 1;
+
+                scene.add(lingoModel);
             }, undefined, function (error){
                 console.error(error);
             });
@@ -1475,27 +1478,14 @@ function main() {
             const backButton = document.createElement('button');
             backButton.textContent = 'Back';
             buttonsDiv.appendChild(backButton);
-
-            if(selectedMachineName === "Machine1"){
-                // Colocar músicas disponíveis para a máquina como botões e passar para a função play!!!
-                const music1Button = document.createElement('button');
-                music1Button.textContent = 'Music 1';
-                buttonsDiv.appendChild(music1Button);
-                
-                const music2Button = document.createElement('button');
-                music2Button.textContent = 'Music 2';
-                buttonsDiv.appendChild(music2Button);
-            }
-            else if(selectedMachineName === "Machine2"){
-                // Colocar músicas disponíveis para a máquina como botões e passar para a função play!!!
-                const music1Button = document.createElement('button');
-                music1Button.textContent = 'Music 1';
-                buttonsDiv.appendChild(music1Button);
-                
-                const music2Button = document.createElement('button');
-                music2Button.textContent = 'Music 2';
-                buttonsDiv.appendChild(music2Button);
-            }
+            
+            const music1Button = document.createElement('button');
+            music1Button.textContent = 'Music 1';
+            buttonsDiv.appendChild(music1Button);
+            
+            const music2Button = document.createElement('button');
+            music2Button.textContent = 'Music 2';
+            buttonsDiv.appendChild(music2Button);
 
             // Adicionar os botões ao corpo do documento
             document.body.appendChild(buttonsDiv);
@@ -1505,11 +1495,11 @@ function main() {
             });
 
             music1Button.addEventListener('click', () => {
-                music(mainCharacterName, selectedMachineName, "Music1");
+                playMusic(mainCharacterName, selectedMachineName, "Music1");
             });
 
             music2Button.addEventListener('click', () => {
-                music(mainCharacterName, selectedMachineName, "Music2");
+                playMusic(mainCharacterName, selectedMachineName, "Music2");
             });
 
             //SCENARIO
@@ -1839,12 +1829,231 @@ function main() {
             }
         }
 
-        function music(mainCharacterName, selectedMachineName, musicN){
+        function playMusic(mainCharacterName, selectedMachineName, musicN){
+            scene.remove(luarModel, melindaModel, lingoModel);
+            scene.clear();
+
+            //CAMERA
+            camera.position.set(0,200,380);
+            camera.lookAt(0,40,0);
+
+            //LIGHT
+            {
+                const whiteLight = 0xffffff;
+
+                // SPOTLIGHTS CONSTANTS
+                const spotLightIntensity = 1;
+
+                // MIDDLE LIGHT
+                const mSpotLight = new THREE.SpotLight(whiteLight, spotLightIntensity);
+                mSpotLight.castShadow=true;
+                mSpotLight.penumbra = .8;
+                mSpotLight.position.set(0,100,400);
+                mSpotLight.target.position.set(0,0,200);
+                scene.add(mSpotLight);
+                scene.add(mSpotLight.target);
+
+                // LEFT SPOTLIGHT
+                const lSpotLight = new THREE.SpotLight(whiteLight, spotLightIntensity);
+                lSpotLight.castShadow=true;
+                lSpotLight.penumbra = 1
+                lSpotLight.position.set(-150,150,140);
+                lSpotLight.target.position.set(-150, 4, 140);
+                scene.add(lSpotLight);
+                scene.add(lSpotLight.target);
+
+                // RIGHT SPOTLIGHT
+                const rSpotLight = new THREE.SpotLight(whiteLight, spotLightIntensity);
+                rSpotLight.castShadow=true;
+                rSpotLight.penumbra = 1
+                rSpotLight.position.set(150,150,140);
+                rSpotLight.target.position.set(150, 4, 140);
+                scene.add(rSpotLight);
+                scene.add(rSpotLight.target);
+            }
+
+            // TEXTURES
+            const floor_texture = textureLoader.load('./Models/Textures/Floor/textures/herringbone_parquet_diff_4k.jpg');
+            floor_texture.wrapS = THREE.RepeatWrapping;
+            floor_texture.wrapT = THREE.RepeatWrapping;
+            floor_texture.magFilter = THREE.NearestFilter;
+            const floorRepeats = 10;
+            floor_texture.repeat.set(floorRepeats,floorRepeats);
+
+            const roof_texture = textureLoader.load('./Models/Textures/Roof/Texture.jpg');
+            roof_texture.wrapS = THREE.RepeatWrapping;
+            roof_texture.wrapT = THREE.RepeatWrapping;
+            roof_texture.magFilter = THREE.NearestFilter;
+            const roofRepeats = 10;
+            roof_texture.repeat.set(roofRepeats,roofRepeats);
+
+            const wall_texture = textureLoader.load('./Models/Textures/Wall/Texture.jpg');
+            wall_texture.wrapS = THREE.RepeatWrapping;
+            wall_texture.wrapT = THREE.RepeatWrapping;
+            wall_texture.magFilter = THREE.NearestFilter;
+            const wallRepeats = 10;
+            wall_texture.repeat.set(wallRepeats,wallRepeats);
+
+            const gameScreen_texture = textureLoader.load('./Models/Textures/GameScreen/Texture.jpg');
+            gameScreen_texture.wrapS = THREE.RepeatWrapping;
+            gameScreen_texture.wrapT = THREE.RepeatWrapping;
+            gameScreen_texture.magFilter = THREE.NearestFilter;
+            const gMRepeats = 1;
+            gameScreen_texture.repeat.set(gMRepeats,gMRepeats);
+
+            //SCENARIO
+            //GROUND
+            const groundGeometry = new THREE.BoxGeometry(1000, 1, 1000, 700, 1, 70);
+            const groundMesh = new THREE.Mesh(groundGeometry, new THREE.MeshStandardMaterial({map: floor_texture}));
+            groundMesh.receiveShadow = true;
+            scene.add(groundMesh);
+
+            //ROOF
+            var geometryRoof = new THREE.BoxGeometry(1000, 1, 1000, 700, 1, 70);
+            var roofMesh = new THREE.Mesh(geometryRoof, new THREE.MeshStandardMaterial({map: roof_texture}));
+            roofMesh.receiveShadow = true;
+            scene.add(roofMesh);
+            roofMesh.position.y= 200;
+
+            //WALLS
+            var geometryLateral = new THREE.BoxGeometry(1, 200, 1000);
+            var wall1Mesh = new THREE.Mesh(geometryLateral, new THREE.MeshStandardMaterial({map: wall_texture}));
+            wall1Mesh.receiveShadow = true;
+            scene.add(wall1Mesh);
+            wall1Mesh.position.x=-500;
+            wall1Mesh.position.y=100;
+            var wall2Mesh = new THREE.Mesh(geometryLateral, new THREE.MeshStandardMaterial({map: wall_texture}));
+            wall2Mesh.receiveShadow = true;
+            scene.add(wall2Mesh);
+            wall2Mesh.position.x=500;
+            wall2Mesh.position.y=wall1Mesh.position.y;
+
+            var geometryFB = new THREE.BoxGeometry(1000, 200, 1);
+            var backWallMesh = new THREE.Mesh(geometryFB, new THREE.MeshStandardMaterial({map: wall_texture}));
+            scene.add(backWallMesh);
+            backWallMesh.position.y=100;
+            backWallMesh.position.z=-500;
+            var frontWallMesh = new THREE.Mesh(geometryFB, new THREE.MeshStandardMaterial({map: wall_texture}));
+            scene.add(frontWallMesh);
+            frontWallMesh.position.y=100;
+            frontWallMesh.position.z=500;
+
+            //GAME SCREEN
+            var geometryGameScreen = new THREE.BoxGeometry(125, 250, 1);
+            var gameScreen = new THREE.Mesh(geometryGameScreen, new THREE.MeshBasicMaterial({map: gameScreen_texture }));
+            scene.add(gameScreen);
+            gameScreen.position.y=100;
+            gameScreen.position.z=200;
+
+            //GAME SCREEN FRAME
+            var geometryFrame = new THREE.BoxGeometry(135, 250, 1);
+            var screenFrame = new THREE.Mesh(geometryFrame, new THREE.MeshBasicMaterial({ color: 0xfe7f9c }));
+            scene.add(screenFrame);
+            screenFrame.position.y=100;
+            screenFrame.position.z=gameScreen.position.z-1;
+
+            //SEQUENCE BAR
+            var geometrySquenceBar = new THREE.BoxGeometry(125, 25, 1);
+            var sequenceBar = new THREE.Mesh(geometrySquenceBar, new THREE.MeshBasicMaterial({ color: 0x4B0082 }));
+            scene.add(sequenceBar);
+            sequenceBar.position.y=gameScreen.position.y-70;
+            sequenceBar.position.z=gameScreen.position.z+1;
+
+            //MAIN CHARACTER            
+            if (mainCharacterName === "Luar") {
+                loader.load('./Models/Characters/Luar.glb', (gltf) => {
+                    luarModel = gltf.scene;
+                    luarModel.position.set(-150, 4, 140);
+                    luarModel.scale.set(45, 45, 45);
+                    luarModel.rotation.y = 2.8;
+                
+                    scene.add(luarModel);
+                }, undefined, function (error) {
+                    console.error(error);
+                });
+
+                mainCharacter = luarModel;
+            } 
+            else if (mainCharacterName === "Melinda") {
+                loader.load('./Models/Characters/Melinda.gltf', (gltf) => {
+                    melindaModel = gltf.scene;
+                    melindaModel.position.set(-150, 4, 140);
+                    melindaModel.scale.set(0.4, 0.4, 0.4);
+                    melindaModel.rotation.y = 2.8;
+                
+                    scene.add(melindaModel);
+                }, undefined, function (error) {
+                    console.error(error);
+                });
+
+                mainCharacter = melindaModel;
+            }
+
+            //GAME OBJECTS
+            loader.load('./Models/Characters/Luar.glb', (gltf) => {
+                scene.add(gltf.scene);
+                gltf.scene.position.set(150, 4, 140);
+                gltf.scene.scale.set(45,45,45);
+                gltf.scene.rotation.y = -2.8;
+            }, undefined, function (error) {
+                console.error(error);
+            });
+
+            loader.load('./Models/Scenario/Pad/scene.gltf', function(gltf){ //left
+                scene.add(gltf.scene);
+                gltf.scene.position.set(-150, 0, 140)
+                gltf.scene.scale.set(0.1,0.1,0.1)
+                gltf.scene.rotation.y = -0.3
+            }, undefined, function (error){
+                console.error(error);
+            });
+            
+            loader.load('./Models/Scenario/Pad/scene.gltf', function(gltf){ //right
+                scene.add(gltf.scene);
+                gltf.scene.position.set(150, 0, 140)
+                gltf.scene.scale.set(0.1,0.1,0.1)
+                gltf.scene.rotation.y = 0.3
+            }, undefined, function (error){
+                console.error(error);
+            });
+        
+            loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //left
+                scene.add(gltf.scene);
+                gltf.scene.position.set(-65, 30, 202)
+                gltf.scene.scale.set(1,1,1)
+                gltf.scene.rotation.z = -1.575
+            }, undefined, function (error){
+                console.error(error);
+            });
+            loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //down
+                scene.add(gltf.scene);
+                gltf.scene.position.set(-23, 15, 202)
+                gltf.scene.scale.set(1,1,1)
+            }, undefined, function (error){
+                console.error(error);
+            });
+            loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //up
+                scene.add(gltf.scene);
+                gltf.scene.position.set(23, 45, 202)
+                gltf.scene.scale.set(1,1,1)
+                gltf.scene.rotation.z = 3.15
+            }, undefined, function (error){
+                console.error(error);
+            });
+            loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //right
+                scene.add(gltf.scene);
+                gltf.scene.position.set(65, 31, 202)
+                gltf.scene.scale.set(1,1,1)
+                gltf.scene.rotation.z = 1.575
+            }, undefined, function (error){
+                console.error(error);
+            });
+
             if(selectedMachineName === "Machine1"){
                 switch (musicN) {
                     case "Music1":
-                        // music = ???;
-                        // play(mainCharacterName, music);
+                        backgroundMusic.src = "./Music/bonbonchocolat_everglow.mp3";
+                        backgroundMusic.play();
                         break;
                     case "Music2":
                         break;
@@ -1863,185 +2072,6 @@ function main() {
                 }
             }
         }
-
-        // function play(mainCharacterName, music){
-        //     scene.clear();
-
-        //     //LIGHT
-        //     {
-        //         const whiteLight = 0xffffff;
-
-        //         // SPOTLIGHTS CONSTANTS
-        //         const spotLightIntensity = 1;
-
-        //         // MIDDLE LIGHT
-        //         const mSpotLight = new THREE.SpotLight(whiteLight, spotLightIntensity);
-        //         mSpotLight.castShadow=true;
-        //         mSpotLight.penumbra = .8;
-        //         mSpotLight.position.set(0,100,400);
-        //         mSpotLight.target.position.set(0,0,200);
-        //         scene.add(mSpotLight);
-        //         scene.add(mSpotLight.target);
-
-        //         // LEFT SPOTLIGHT
-        //         const lSpotLight = new THREE.SpotLight(whiteLight, spotLightIntensity);
-        //         lSpotLight.castShadow=true;
-        //         lSpotLight.penumbra = 1
-        //         lSpotLight.position.set(-150,150,140);
-        //         lSpotLight.target.position.set(-150, 4, 140);
-        //         scene.add(lSpotLight);
-        //         scene.add(lSpotLight.target);
-
-        //         // RIGHT SPOTLIGHT
-        //         const rSpotLight = new THREE.SpotLight(whiteLight, spotLightIntensity);
-        //         rSpotLight.castShadow=true;
-        //         rSpotLight.penumbra = 1
-        //         rSpotLight.position.set(150,150,140);
-        //         rSpotLight.target.position.set(150, 4, 140);
-        //         scene.add(rSpotLight);
-        //         scene.add(rSpotLight.target);
-        //     }
-
-        //     // TEXTURES
-        //     const floor_texture = textureLoader.load('./Models/Textures/Floor/textures/herringbone_parquet_diff_4k.jpg');
-        //     floor_texture.wrapS = THREE.RepeatWrapping;
-        //     floor_texture.wrapT = THREE.RepeatWrapping;
-        //     floor_texture.magFilter = THREE.NearestFilter;
-        //     const floorRepeats = 10;
-        //     floor_texture.repeat.set(floorRepeats,floorRepeats);
-
-        //     const roof_texture = textureLoader.load('./Models/Textures/Roof/Texture.jpg');
-        //     roof_texture.wrapS = THREE.RepeatWrapping;
-        //     roof_texture.wrapT = THREE.RepeatWrapping;
-        //     roof_texture.magFilter = THREE.NearestFilter;
-        //     const roofRepeats = 10;
-        //     roof_texture.repeat.set(roofRepeats,roofRepeats);
-
-        //     const wall_texture = textureLoader.load('./Models/Textures/Wall/Texture.jpg');
-        //     wall_texture.wrapS = THREE.RepeatWrapping;
-        //     wall_texture.wrapT = THREE.RepeatWrapping;
-        //     wall_texture.magFilter = THREE.NearestFilter;
-        //     const wallRepeats = 10;
-        //     wall_texture.repeat.set(wallRepeats,wallRepeats);
-
-        //     const gameScreen_texture = textureLoader.load('./Models/Textures/GameScreen/Texture.jpg');
-        //     gameScreen_texture.wrapS = THREE.RepeatWrapping;
-        //     gameScreen_texture.wrapT = THREE.RepeatWrapping;
-        //     gameScreen_texture.magFilter = THREE.NearestFilter;
-        //     const gMRepeats = 1;
-        //     gameScreen_texture.repeat.set(gMRepeats,gMRepeats);
-
-        //     //SCENARIO
-        //     {
-        //         //GROUND
-        //         const groundGeometry = new THREE.BoxGeometry(1000, 1, 1000, 700, 1, 70);
-        //         const groundMesh = new THREE.Mesh(groundGeometry, new THREE.MeshStandardMaterial({map: floor_texture}));
-        //         groundMesh.receiveShadow = true;
-        //         scene.add(groundMesh);
-
-        //         //ROOF
-        //         var geometryRoof = new THREE.BoxGeometry(1000, 1, 1000, 700, 1, 70);
-        //         var roofMesh = new THREE.Mesh(geometryRoof, new THREE.MeshStandardMaterial({map: roof_texture}));
-        //         roofMesh.receiveShadow = true;
-        //         scene.add(roofMesh);
-        //         roofMesh.position.y= 200;
-
-        //         //WALLS
-        //         var geometryLateral = new THREE.BoxGeometry(1, 200, 1000);
-        //         var wall1Mesh = new THREE.Mesh(geometryLateral, new THREE.MeshStandardMaterial({map: wall_texture}));
-        //         wall1Mesh.receiveShadow = true;
-        //         scene.add(wall1Mesh);
-        //         wall1Mesh.position.x=-500;
-        //         wall1Mesh.position.y=100;
-        //         var wall2Mesh = new THREE.Mesh(geometryLateral, new THREE.MeshStandardMaterial({map: wall_texture}));
-        //         wall2Mesh.receiveShadow = true;
-        //         scene.add(wall2Mesh);
-        //         wall2Mesh.position.x=500;
-        //         wall2Mesh.position.y=wall1Mesh.position.y;
-
-        //         var geometryFB = new THREE.BoxGeometry(1000, 200, 1);
-        //         var backWallMesh = new THREE.Mesh(geometryFB, new THREE.MeshStandardMaterial({map: wall_texture}));
-        //         scene.add(backWallMesh);
-        //         backWallMesh.position.y=100;
-        //         backWallMesh.position.z=-500;
-        //         var frontWallMesh = new THREE.Mesh(geometryFB, new THREE.MeshStandardMaterial({map: wall_texture}));
-        //         scene.add(frontWallMesh);
-        //         frontWallMesh.position.y=100;
-        //         frontWallMesh.position.z=500;
-
-        //         //GAME SCREEN
-        //         var geometryGameScreen = new THREE.BoxGeometry(125, 250, 1);
-        //         var gameScreen = new THREE.Mesh(geometryGameScreen, new THREE.MeshBasicMaterial({map: gameScreen_texture }));
-        //         scene.add(gameScreen);
-        //         gameScreen.position.y=100;
-        //         gameScreen.position.z=200;
-
-        //         //GAME SCREEN FRAME
-        //         var geometryFrame = new THREE.BoxGeometry(135, 250, 1);
-        //         var screenFrame = new THREE.Mesh(geometryFrame, new THREE.MeshBasicMaterial({ color: 0xfe7f9c }));
-        //         scene.add(screenFrame);
-        //         screenFrame.position.y=100;
-        //         screenFrame.position.z=gameScreen.position.z-1;
-
-        //         //SEQUENCE BAR
-        //         var geometrySquenceBar = new THREE.BoxGeometry(125, 25, 1);
-        //         var sequenceBar = new THREE.Mesh(geometrySquenceBar, new THREE.MeshBasicMaterial({ color: 0x4B0082 }));
-        //         scene.add(sequenceBar);
-        //         sequenceBar.position.y=gameScreen.position.y-70;
-        //         sequenceBar.position.z=gameScreen.position.z+1;
-
-        //         //GAME OBJECTS
-        //         loader.load('./Models/Scenario/Pad/scene.gltf', function(gltf){ //left
-        //             scene.add(gltf.scene);
-        //             gltf.scene.position.set(-150, 0, 140)
-        //             gltf.scene.scale.set(0.1,0.1,0.1)
-        //             gltf.scene.rotation.y = -0.3
-        //         }, undefined, function (error){
-        //             console.error(error);
-        //         });
-                
-        //         loader.load('./Models/Scenario/Pad/scene.gltf', function(gltf){ //right
-        //             scene.add(gltf.scene);
-        //             gltf.scene.position.set(150, 0, 140)
-        //             gltf.scene.scale.set(0.1,0.1,0.1)
-        //             gltf.scene.rotation.y = 0.3
-        //         }, undefined, function (error){
-        //             console.error(error);
-        //         });
-            
-        //         loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //left
-        //             scene.add(gltf.scene);
-        //             gltf.scene.position.set(-65, 30, 202)
-        //             gltf.scene.scale.set(1,1,1)
-        //             gltf.scene.rotation.z = -1.575
-        //         }, undefined, function (error){
-        //             console.error(error);
-        //         });
-        //         loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //down
-        //             scene.add(gltf.scene);
-        //             gltf.scene.position.set(-23, 15, 202)
-        //             gltf.scene.scale.set(1,1,1)
-        //         }, undefined, function (error){
-        //             console.error(error);
-        //         });
-        //         loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //up
-        //             scene.add(gltf.scene);
-        //             gltf.scene.position.set(23, 45, 202)
-        //             gltf.scene.scale.set(1,1,1)
-        //             gltf.scene.rotation.z = 3.15
-        //         }, undefined, function (error){
-        //             console.error(error);
-        //         });
-        //         loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //right
-        //             scene.add(gltf.scene);
-        //             gltf.scene.position.set(65, 31, 202)
-        //             gltf.scene.scale.set(1,1,1)
-        //             gltf.scene.rotation.z = 1.575
-        //         }, undefined, function (error){
-        //             console.error(error);
-        //         });
-        //     }
-        // }
     }
 
     // ANIMATE
