@@ -44,6 +44,13 @@ function main() {
     scene1();
 
     function scene1(){
+        //LOADING MESSAGE
+        const loadingMessage = document.getElementById('loading-message');
+        loadingMessage.style.display = 'block';
+        setTimeout(() => {
+            loadingMessage.style.display = 'none';
+        }, 7000);
+
         //SCENE
         generateScene1(camera, scene, textureLoader, loader);
 
@@ -201,6 +208,13 @@ function main() {
 
         //CAMERA ORBIT CONTROLS
         const controls = new OrbitControls(camera, renderer.domElement);
+
+        //LOADING MESSAGE
+        const loadingMessage = document.getElementById('loading-message');
+        loadingMessage.style.display = 'block';
+        setTimeout(() => {
+            loadingMessage.style.display = 'none';
+        }, 7000);
         
         //SCENE
         generateScene2(controls, camera, scene, textureLoader, loader);
@@ -369,6 +383,14 @@ function main() {
         scene.remove(melindaModel, luarModel);
         scene.clear();
 
+        //LOADING MESSAGE
+        const loadingMessage = document.getElementById('loading-message');
+        loadingMessage.style.display = 'block';
+        setTimeout(() => {
+            loadingMessage.style.display = 'none';
+        }, 7000);
+
+        //SCENE
         generateScene3(camera, scene, textureLoader, loader);
         
         //CHAT BOX
@@ -471,7 +493,7 @@ function main() {
         });
 
         music2Button.addEventListener('click', () => {
-            selectedMusicName = "Music1";
+            selectedMusicName = "Music2";
             scene4();
         });
     }
@@ -480,6 +502,14 @@ function main() {
         scene.remove(luarModel, melindaModel, lingoModel);
         scene.clear();
 
+        //LOADING MESSAGE
+        const loadingMessage = document.getElementById('loading-message');
+        loadingMessage.style.display = 'block';
+        setTimeout(() => {
+            loadingMessage.style.display = 'none';
+        }, 7000);
+
+        //SCENE
         generateScene4(camera, scene, textureLoader);
 
         //GAME SCREEN
@@ -498,14 +528,14 @@ function main() {
 
         //GAME SCREEN FRAME
         var geometryFrame = new THREE.BoxGeometry(135, 250, 1);
-        var screenFrame = new THREE.Mesh(geometryFrame, new THREE.MeshBasicMaterial({ color: 0xfe7f9c }));
+        var screenFrame = new THREE.Mesh(geometryFrame, new THREE.MeshBasicMaterial({ color: 0x4B0082 }));
         scene.add(screenFrame);
         screenFrame.position.y=100;
         screenFrame.position.z=gameScreen.position.z-1;
 
         //SEQUENCE BAR
         var geometrySquenceBar = new THREE.BoxGeometry(125, 25, 1);
-        var sequenceBar = new THREE.Mesh(geometrySquenceBar, new THREE.MeshBasicMaterial({ color: 0x4B0082 }));
+        var sequenceBar = new THREE.Mesh(geometrySquenceBar, new THREE.MeshBasicMaterial({ color: 0x000000 }));
         scene.add(sequenceBar);
         sequenceBar.position.y=gameScreen.position.y-70;
         sequenceBar.position.z=gameScreen.position.z+1;
@@ -567,7 +597,7 @@ function main() {
         }, undefined, function (error){
             console.error(error);
         });
-    
+
         loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //left
             scene.add(gltf.scene);
             gltf.scene.position.set(-65, 30, 202)
@@ -599,6 +629,14 @@ function main() {
         }, undefined, function (error){
             console.error(error);
         });
+        loader.load('./Models/Scenario/Middle_Button/scene.gltf', function(gltf){ //right
+            scene.add(gltf.scene);
+            gltf.scene.position.set(3, 20, 180)
+            gltf.scene.scale.set(8,8,8)
+            gltf.scene.rotation.x = -0.25
+        }, undefined, function (error){
+            console.error(error);
+        });
 
         if(selectedMachineName === "Machine1"){
             switch (selectedMusicName) {
@@ -607,6 +645,8 @@ function main() {
                     backgroundMusic.play();
                     break;
                 case "Music2":
+                    backgroundMusic.src = "./Music/getlucky_daftpunk.mp3";
+                    backgroundMusic.play();
                     break;
                 default:
                     break;
@@ -615,8 +655,12 @@ function main() {
         else if(selectedMachineName === "Machine2"){
             switch (selectedMusicName) {
                 case "Music1":
+                    backgroundMusic.src = "./Music/ymca_villagepeople.mp3";
+                    backgroundMusic.play();
                     break;
                 case "Music2":
+                    backgroundMusic.src = "./Music/itstricky_rundmc.mp3";
+                    backgroundMusic.play();
                     break;
                 default:
                     break;
