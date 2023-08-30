@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { generateScene1, generateScene2, generateScene3, generateScene4 } from './scenes.js';
 
@@ -38,176 +37,20 @@ function main() {
     let luarModel, melindaModel, lingoModel;
     let machine1, machine2, machine3, machine4;
 
+    //ANIMATION
+    let clock = new THREE.Clock();
+    let mixer, animations, activeAction, previousAction;
+    let characterSpeed = 4;
+    let currentScene = null;
+
     //MUSIC
     let selectedMusicName;
 
-    scene1();
-
-    function scene1(){
-        //LOADING MESSAGE
-        const loadingMessage = document.getElementById('loading-message');
-        loadingMessage.style.display = 'block';
-        setTimeout(() => {
-            loadingMessage.style.display = 'none';
-        }, 7000);
-
-        //SCENE
-        generateScene1(camera, scene, textureLoader, loader);
-
-        //CHARACTERS
-        loader.load('./Models/Characters/Luar.glb', (gltf) => {
-            luarModel = gltf.scene;
-            luarModel.position.set(20, 0, 0);
-            luarModel.scale.set(45, 45, 45);
-        
-            luarModel.traverse(function (node) {
-                if (node.isMesh) {
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                }
-            });
-        
-            scene.add(luarModel);
-        }, undefined, function (error) {
-            console.error(error);
-        });
-        
-        loader.load('./Models/Characters/Melinda.gltf', (gltf) => {
-            melindaModel = gltf.scene;
-            melindaModel.position.set(0, 0, 0);
-            melindaModel.scale.set(0.4, 0.4, 0.4);
-        
-            melindaModel.traverse(function (node) {
-                if (node.isMesh) {
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                }
-            });
-        
-            scene.add(melindaModel);
-        }, undefined, function (error) {
-            console.error(error);
-        });
-
-        // DIV
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.style.position = 'absolute';
-        buttonsDiv.style.top = '10px';
-        buttonsDiv.style.left = '10px';
-
-        //BUTTONS
-        const luarButton = document.createElement('button');
-        luarButton.textContent = 'Select Luar';
-        buttonsDiv.appendChild(luarButton);
-
-        const melindaButton = document.createElement('button');
-        melindaButton.textContent = 'Select Melinda';
-        buttonsDiv.appendChild(melindaButton);
-
-        const startButton = document.createElement('button');
-        startButton.textContent = 'Start Game';
-        buttonsDiv.appendChild(startButton);
-
-        document.body.appendChild(buttonsDiv);
-
-        //BUTTON EVENTS
-        luarButton.addEventListener('click', () => {
-            mainCharacterName = "Luar";
-        });
-
-        melindaButton.addEventListener('click', () => {
-            mainCharacterName = "Melinda";
-        });
-
-        startButton.addEventListener('click', () => {
-            if(mainCharacterName != null){
-                scene2();
-                buttonsDiv.remove();
-            }
-            else{
-                console.log('escolha um personagem');
-            }
-        });
-
-        //MACHINES    
-        loader.load('./Models/Scenario/Dance_Machine_1/scene.gltf', function(gltf){
-            machine1 = gltf.scene;
-            machine1.position.set(645, 0, 175)
-            machine1.scale.set(20,20,20)
-            machine1.rotation.y = -2.35
-
-            machine1.traverse( function( node ) {
-                if ( node.isMesh ) { 
-                    node.castShadow = true; 
-                    node.receiveShadow = true;
-                }
-            });
-
-            scene.add(machine1);
-        }, undefined, function (error){
-            console.error(error);
-        });
-
-        loader.load('./Models/Scenario/Dance_Machine_2/scene.gltf', function(gltf){
-            machine2 = gltf.scene;
-            machine2.position.set(-540, 0, 325)
-            machine2.scale.set(0.15,0.15,0.15)
-            machine2.rotation.y = 2.32
-
-            machine2.traverse( function( node ) {
-                if ( node.isMesh ) { 
-                    node.castShadow = true; 
-                    node.receiveShadow = true;
-                }
-            });
-
-            scene.add(machine2);
-        }, undefined, function (error){
-            console.error(error);
-        });
-
-        loader.load('./Models/Scenario/Dance_Machine_3/scene.gltf', function(gltf){
-            machine3 = gltf.scene;
-            machine3.position.set(-390, 0, -390)
-            machine3.scale.set(20,20,20)
-            machine3.rotation.y = 0.84
-
-            machine3.traverse( function( node ) {
-                if ( node.isMesh ) { 
-                    node.castShadow = true; 
-                    node.receiveShadow = true;
-                }
-            });
-
-            scene.add(machine3);
-        }, undefined, function (error){
-            console.error(error);
-        });
-
-        loader.load('./Models/Scenario/Dance_Machine_4/scene.gltf', function(gltf){
-            machine4 = gltf.scene;
-            machine4.position.set(355, -125, -120)
-            machine4.scale.set(60,60,60)
-            machine4.rotation.y = 0.72
-
-            machine4.traverse( function( node ) {
-                if ( node.isMesh ) { 
-                    node.castShadow = true; 
-                    node.receiveShadow = true;
-                }
-            });
-
-            scene.add(machine4);
-        }, undefined, function (error){
-            console.error(error);
-        });
-    }    
+    scene2();
 
     function scene2() {
+        currentScene = scene2;
         scene.clear();
-
-        //CAMERA ORBIT CONTROLS
-        const controls = new OrbitControls(camera, renderer.domElement);
 
         //LOADING MESSAGE
         const loadingMessage = document.getElementById('loading-message');
@@ -217,51 +60,40 @@ function main() {
         }, 7000);
         
         //SCENE
-        generateScene2(controls, camera, scene, textureLoader, loader);
+        scene.add(camera);
+        generateScene2(scene, textureLoader, loader);
         
         //LOAD MAIN CHARACTER
-        if (mainCharacterName === "Luar") {
-            loader.load('./Models/Characters/Luar.glb', (gltf) => {
-                luarModel = gltf.scene;
-                luarModel.position.set(0, 0, 0);
-                luarModel.scale.set(45, 45, 45);
-            
-                luarModel.traverse(function (node) {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                    }
-                });
-            
-                scene.add(luarModel);
-            }, undefined, function (error) {
-                console.error(error);
+        loader.load('./Models/Characters/Luar.glb', (gltf) => {
+            mainCharacter = gltf.scene;
+            mainCharacter.position.set(0, 0, 0);
+            mainCharacter.scale.set(45, 45, 45);
+            mainCharacter.rotation.y = 3.25;
+        
+            mainCharacter.traverse(function (node) {
+                if (node.isMesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
             });
 
-            mainCharacter = luarModel;
-        } 
-        else if (mainCharacterName === "Melinda") {
-            loader.load('./Models/Characters/Melinda.gltf', (gltf) => {
-                melindaModel = gltf.scene;
-                melindaModel.position.set(0, 0, 0);
-                melindaModel.scale.set(0.4, 0.4, 0.4);
-            
-                melindaModel.traverse(function (node) {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                    }
-                });
-            
-                scene.add(melindaModel);
-            }, undefined, function (error) {
-                console.error(error);
-            });
+            mixer = new THREE.AnimationMixer(mainCharacter);
 
-            mainCharacter = melindaModel;
-        }
+            animations = gltf.animations;
 
-        //TODO: animar mainCharacter!!!!!
+            activeAction = mixer.clipAction(gltf.animations[2]);
+
+            activeAction.play();
+        
+            scene.add(mainCharacter);
+
+            animate();
+        }, undefined, function (error) {
+            console.error(error);
+        });
+        mainCharacterName = "Luar";
+        window.addEventListener('keydown', onKeyDown, false);
+        window.addEventListener('keyup', onKeyUp, false);
 
         //MACHINES
         loader.load('./Models/Scenario/Dance_Machine_1/scene.gltf', function(gltf){
@@ -668,9 +500,99 @@ function main() {
         }
     }
 
+    function onKeyDown(event){
+
+        previousAction = activeAction;
+        
+        switch(event.code){
+            case 'KeyW':
+                activeAction = mixer.clipAction(animations[7]);
+                if(mainCharacter.rotation.y != -3.25){
+                    mainCharacter.rotation.y = -3.25;
+                }
+                mainCharacter.position.z -= characterSpeed;
+                break;
+            case 'KeyA':
+                activeAction = mixer.clipAction(animations[7]);
+                if(mainCharacter.rotation.y != -1.625){
+                    mainCharacter.rotation.y = -1.625;
+                }
+                mainCharacter.position.x -= characterSpeed;
+                break;
+            case 'KeyS':
+                activeAction = mixer.clipAction(animations[7]);
+                if (mainCharacter.rotation.y != 0) {
+                    mainCharacter.rotation.y = 0;
+                }
+                mainCharacter.position.z += characterSpeed;
+                break;
+            case 'KeyD':
+                activeAction = mixer.clipAction(animations[7]);
+                if(mainCharacter.rotation.y != 1.625){
+                    mainCharacter.rotation.y = 1.625;
+                }
+                mainCharacter.position.x += characterSpeed;
+                break;
+        }
+      
+        if(previousAction !== activeAction){
+          previousAction.fadeOut(0.5);
+          activeAction.reset()
+                      .setEffectiveTimeScale(1)
+                      .setEffectiveWeight(1)
+                      .fadeIn(0.5)
+                      .play();
+        }
+    }
+
+    function onKeyUp(event){
+
+        previousAction = activeAction;
+
+        switch (event.code) {
+            case 'KeyW':
+            case 'KeyS':
+                activeAction = mixer.clipAction(animations[2]);
+                break;
+            case 'KeyA':
+            case 'KeyD':
+                activeAction = mixer.clipAction(animations[2]);
+                break;
+        }
+      
+        if(previousAction !== activeAction){
+          previousAction.fadeOut(0.5);
+          activeAction.reset()
+                      .setEffectiveTimeScale(1)
+                      .setEffectiveWeight(1)
+                      .fadeIn(0.5)
+                      .play();
+        }
+    }
+
     // ANIMATE
     function animate() {
         requestAnimationFrame(animate);
+
+        const delta = clock.getDelta();
+        if (mixer){
+            mixer.update(delta);
+        }
+
+        if (currentScene === scene2 && mainCharacter) {
+            camera.position.copy(mainCharacter.position);
+
+            camera.position.y += 100;
+
+            //CAMERA LOOKING TO THE BACK OF THE CHARACTER
+            const angle = mainCharacter.rotation.y;
+            const distance = 200; // Ajuste esse valor conforme necessário
+            camera.position.x = mainCharacter.position.x - Math.sin(angle) * distance;
+            camera.position.z = mainCharacter.position.z - Math.cos(angle) * distance;
+
+            camera.lookAt(mainCharacter.position.x, 60, mainCharacter.position.z);
+        }
+
         renderer.render(scene, camera);
     }
     animate();

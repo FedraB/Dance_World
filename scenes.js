@@ -6,8 +6,7 @@ export function generateScene1(camera, scene, textureLoader, gltfLoader) {
     generateRoomScene1(textureLoader, scene, gltfLoader);
 }
 
-export function generateScene2(controls, camera, scene, textureLoader, gltfLoader) {
-    cameraScene2(controls, camera);
+export function generateScene2(scene, textureLoader, gltfLoader) {
     lightsScene1(scene);
     generateRoomScene1(textureLoader, scene, gltfLoader);
 }
@@ -475,19 +474,6 @@ function generateRoomScene1(textureLoader, scene, loader) {
     }, undefined, function (error){
         console.error(error);
     });
-}
-
-function cameraScene2(controls, camera) {
-    controls.minDistance = 5
-    controls.maxDistance = 150
-    controls.enablePan = false
-    controls.maxPolarAngle = Math.PI / 2 - 0.05
-    controls.target.set(0,60,0)
-    controls.update();
-
-    camera.position.set(0,400,1000);
-
-    controls.update();
 }
 
 function cameraScene3(camera) {
