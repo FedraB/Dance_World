@@ -188,6 +188,7 @@ function main() {
             console.error(error);
         });
 
+        //RAYCASTER BUTTON
         const luarButton3D = new THREE.Mesh(
             new THREE.BoxGeometry(40,85,20),
             new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 })
@@ -361,6 +362,7 @@ function main() {
             console.error(error);
         });
 
+        //RAYCASTER BUTTON
         const machine1Button3D = new THREE.Mesh(
             new THREE.BoxGeometry(120,120,150),
             new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 })
@@ -379,18 +381,14 @@ function main() {
         const mouse = new THREE.Vector2();
 
         function onMouseClick(event) {
-            // Calculate normalized device coordinates
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            // Update the picking ray with the camera and mouse position
             raycaster.setFromCamera(mouse, camera);
 
-            // Check for intersections with the buttons
             const intersects = raycaster.intersectObjects([machine1Button3D, machine2Button3D]);
 
             if (intersects.length > 0) {
-                // A button was clicked
                 const clickedButton = intersects[0].object;
                 if (clickedButton === machine1Button3D) {
                     selectedMachineName = "Machine1";
@@ -544,6 +542,9 @@ function main() {
 
         music2Button.addEventListener('click', () => {
             selectedMusicName = "Music2";
+            buttonsDiv.remove();
+            messageDiv.remove();
+            musicsDiv.remove();
             scene4();
         });
     }
@@ -791,7 +792,7 @@ function main() {
 
             //CAMERA LOOKING TO THE BACK OF THE CHARACTER
             const angle = mainCharacter.rotation.y;
-            const distance = 200; // Ajuste esse valor conforme necessário
+            const distance = 200;
             camera.position.x = mainCharacter.position.x - Math.sin(angle) * distance;
             camera.position.z = mainCharacter.position.z - Math.cos(angle) * distance;
 
