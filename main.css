@@ -20,3 +20,41 @@ html, body {
     border-radius: 5px;
     z-index: 1000;
 }
+
+.custom-button {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 10px;
+    background: linear-gradient(to bottom, #f3a6d2, #ff3399);
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.custom-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
+}
+
+.custom-music-button {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 10px;
+    background: linear-gradient(to bottom, #f3a6d2, #b0c3f3);
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.custom-music-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.4);
+}

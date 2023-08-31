@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { generateScene1, generateScene2, generateScene3, generateScene4 } from './scenes.js';
 
@@ -35,15 +34,24 @@ function main() {
     let selectedMachineName = null;
 
     //MODELS
-    let luarModel, melindaModel, lingoModel;
+    let luarModel, lingoModel;
     let machine1, machine2, machine3, machine4;
 
+    //ANIMATION
+    let clock = new THREE.Clock();
+    let mixer, animations, activeAction, previousAction;
+    let characterSpeed = 2;
+    let currentScene = null;
+
     //MUSIC
+    let musicOption1, musicOption2;
     let selectedMusicName;
 
     scene1();
 
     function scene1(){
+        currentScene = scene1;
+
         //LOADING MESSAGE
         const loadingMessage = document.getElementById('loading-message');
         loadingMessage.style.display = 'block';
@@ -51,74 +59,21 @@ function main() {
             loadingMessage.style.display = 'none';
         }, 7000);
 
-        //SCENE
-        generateScene1(camera, scene, textureLoader, loader);
-
-        //CHARACTERS
-        loader.load('./Models/Characters/Luar.glb', (gltf) => {
-            luarModel = gltf.scene;
-            luarModel.position.set(20, 0, 0);
-            luarModel.scale.set(45, 45, 45);
-        
-            luarModel.traverse(function (node) {
-                if (node.isMesh) {
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                }
-            });
-        
-            scene.add(luarModel);
-        }, undefined, function (error) {
-            console.error(error);
-        });
-        
-        loader.load('./Models/Characters/Melinda.gltf', (gltf) => {
-            melindaModel = gltf.scene;
-            melindaModel.position.set(0, 0, 0);
-            melindaModel.scale.set(0.4, 0.4, 0.4);
-        
-            melindaModel.traverse(function (node) {
-                if (node.isMesh) {
-                    node.castShadow = true;
-                    node.receiveShadow = true;
-                }
-            });
-        
-            scene.add(melindaModel);
-        }, undefined, function (error) {
-            console.error(error);
-        });
-
         // DIV
         const buttonsDiv = document.createElement('div');
         buttonsDiv.style.position = 'absolute';
-        buttonsDiv.style.top = '10px';
-        buttonsDiv.style.left = '10px';
+        buttonsDiv.style.top = '20px';
+        buttonsDiv.style.left = '25px';
 
         //BUTTONS
-        const luarButton = document.createElement('button');
-        luarButton.textContent = 'Select Luar';
-        buttonsDiv.appendChild(luarButton);
-
-        const melindaButton = document.createElement('button');
-        melindaButton.textContent = 'Select Melinda';
-        buttonsDiv.appendChild(melindaButton);
-
         const startButton = document.createElement('button');
         startButton.textContent = 'Start Game';
+        startButton.className = 'custom-button';
         buttonsDiv.appendChild(startButton);
 
         document.body.appendChild(buttonsDiv);
 
         //BUTTON EVENTS
-        luarButton.addEventListener('click', () => {
-            mainCharacterName = "Luar";
-        });
-
-        melindaButton.addEventListener('click', () => {
-            mainCharacterName = "Melinda";
-        });
-
         startButton.addEventListener('click', () => {
             if(mainCharacterName != null){
                 scene2();
@@ -127,6 +82,37 @@ function main() {
             else{
                 console.log('escolha um personagem');
             }
+        });
+
+        //SCENE
+        generateScene1(camera, scene, textureLoader, loader);
+
+        //CHARACTERS
+        loader.load('./Models/Characters/Luar.glb', (gltf) => {
+            luarModel = gltf.scene;
+            luarModel.position.set(0, 0, 0);
+            luarModel.scale.set(45, 45, 45);
+        
+            luarModel.traverse(function (node) {
+                if (node.isMesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
+
+            mixer = new THREE.AnimationMixer(luarModel);
+    
+            animations = gltf.animations;
+
+            activeAction = mixer.clipAction(gltf.animations[2]);
+
+            activeAction.play();
+        
+            scene.add(luarModel);
+            
+            animate();
+        }, undefined, function (error) {
+            console.error(error);
         });
 
         //MACHINES    
@@ -201,13 +187,39 @@ function main() {
         }, undefined, function (error){
             console.error(error);
         });
-    }    
+
+        const luarButton3D = new THREE.Mesh(
+            new THREE.BoxGeometry(40,85,20),
+            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 })
+        );
+        luarButton3D.position.set(0,40,0);
+        scene.add(luarButton3D);
+        
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+
+            const intersects = raycaster.intersectObjects([luarButton3D]);
+
+            if (intersects.length > 0) {
+                const clickedButton = intersects[0].object;
+                if (clickedButton === luarButton3D) {
+                    mainCharacterName = "Luar";
+                }
+            }
+        }
+
+        window.addEventListener('click', onMouseClick, false);
+    }
 
     function scene2() {
+        currentScene = scene2;
         scene.clear();
-
-        //CAMERA ORBIT CONTROLS
-        const controls = new OrbitControls(camera, renderer.domElement);
 
         //LOADING MESSAGE
         const loadingMessage = document.getElementById('loading-message');
@@ -217,51 +229,64 @@ function main() {
         }, 7000);
         
         //SCENE
-        generateScene2(controls, camera, scene, textureLoader, loader);
+        scene.add(camera);
+        generateScene2(scene, textureLoader, loader);
+
+        //DIV
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.style.position = 'absolute';
+        buttonsDiv.style.top = '20px';
+        buttonsDiv.style.left = '25px';
+
+        //BUTTONS
+        const backButton = document.createElement('button');
+        backButton.textContent = 'Back To Menu';
+        backButton.className = 'custom-button';
+        buttonsDiv.appendChild(backButton);
+
+        document.body.appendChild(buttonsDiv);
+
+        backButton.addEventListener('click', () => {
+            scene.clear();
+            buttonsDiv.remove();
+            controls.dispose();
+            scene1();
+        });
         
         //LOAD MAIN CHARACTER
-        if (mainCharacterName === "Luar") {
+        if(mainCharacterName === "Luar"){
             loader.load('./Models/Characters/Luar.glb', (gltf) => {
-                luarModel = gltf.scene;
-                luarModel.position.set(0, 0, 0);
-                luarModel.scale.set(45, 45, 45);
+                mainCharacter = gltf.scene;
+                mainCharacter.position.set(0, 0, 0);
+                mainCharacter.scale.set(45, 45, 45);
+                mainCharacter.rotation.y = 3.25;
             
-                luarModel.traverse(function (node) {
+                mainCharacter.traverse(function (node) {
                     if (node.isMesh) {
                         node.castShadow = true;
                         node.receiveShadow = true;
                     }
                 });
+    
+                mixer = new THREE.AnimationMixer(mainCharacter);
+    
+                animations = gltf.animations;
+    
+                activeAction = mixer.clipAction(gltf.animations[2]);
+    
+                activeAction.play();
             
-                scene.add(luarModel);
+                scene.add(mainCharacter);
+    
+                animate();
             }, undefined, function (error) {
                 console.error(error);
             });
-
-            mainCharacter = luarModel;
-        } 
-        else if (mainCharacterName === "Melinda") {
-            loader.load('./Models/Characters/Melinda.gltf', (gltf) => {
-                melindaModel = gltf.scene;
-                melindaModel.position.set(0, 0, 0);
-                melindaModel.scale.set(0.4, 0.4, 0.4);
-            
-                melindaModel.traverse(function (node) {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                    }
-                });
-            
-                scene.add(melindaModel);
-            }, undefined, function (error) {
-                console.error(error);
-            });
-
-            mainCharacter = melindaModel;
         }
 
-        //TODO: animar mainCharacter!!!!!
+        //MAIN CHARACTER ANIMATION EVENT LISTENERS
+        window.addEventListener('keydown', onKeyDown, false);
+        window.addEventListener('keyup', onKeyUp, false);
 
         //MACHINES
         loader.load('./Models/Scenario/Dance_Machine_1/scene.gltf', function(gltf){
@@ -336,51 +361,59 @@ function main() {
             console.error(error);
         });
 
-        //DIV
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.style.position = 'absolute';
-        buttonsDiv.style.top = '10px';
-        buttonsDiv.style.left = '10px';
+        const machine1Button3D = new THREE.Mesh(
+            new THREE.BoxGeometry(120,120,150),
+            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 })
+        );
+        machine1Button3D.position.set(432, 65, 420);
+        scene.add(machine1Button3D);
+        
+        const machine2Button3D = new THREE.Mesh(
+            new THREE.BoxGeometry(145,130,150),
+            new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 })
+        );
+        machine2Button3D.position.set(-420, 65, 415);
+        scene.add(machine2Button3D);
+        
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
 
-        //BUTTONS
-        const backButton = document.createElement('button');
-        backButton.textContent = 'Back To Menu';
-        buttonsDiv.appendChild(backButton);
+        function onMouseClick(event) {
+            // Calculate normalized device coordinates
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        const machine1Button = document.createElement('button');
-        machine1Button.textContent = 'Machine 1';
-        buttonsDiv.appendChild(machine1Button);
+            // Update the picking ray with the camera and mouse position
+            raycaster.setFromCamera(mouse, camera);
 
-        const machine2Button = document.createElement('button');
-        machine2Button.textContent = 'Machine 2';
-        buttonsDiv.appendChild(machine2Button);
+            // Check for intersections with the buttons
+            const intersects = raycaster.intersectObjects([machine1Button3D, machine2Button3D]);
 
-        document.body.appendChild(buttonsDiv);
+            if (intersects.length > 0) {
+                // A button was clicked
+                const clickedButton = intersects[0].object;
+                if (clickedButton === machine1Button3D) {
+                    selectedMachineName = "Machine1";
+                    musicOption1 = 'Bon Bon Chocolat - Everglow';
+                    musicOption2 = 'Get Lucky - Daft Punk';
+                    buttonsDiv.remove();
+                    scene3();
+                } else if (clickedButton === machine2Button3D) {
+                    selectedMachineName = "Machine2";
+                    musicOption1 = 'YMCA - Run DMC';
+                    musicOption2 = 'It`s Tricky - Village People';
+                    buttonsDiv.remove();
+                    scene3();
+                }
+            }
+        }
 
-        backButton.addEventListener('click', () => {
-            scene.clear();
-            buttonsDiv.remove();
-            controls.dispose();
-            scene1();
-        });
-
-        machine1Button.addEventListener('click', () => {
-            buttonsDiv.remove();
-            controls.dispose();
-            selectedMachineName = "Machine1";
-            scene3();
-        });
-
-        machine2Button.addEventListener('click', () => {
-            buttonsDiv.remove();
-            controls.dispose();
-            selectedMachineName = "Machine2";
-            scene3();
-        });
+        window.addEventListener('click', onMouseClick, false);
     }
 
     function scene3(){
-        scene.remove(melindaModel, luarModel);
+        currentScene = scene3;
+        scene.remove(luarModel);
         scene.clear();
 
         //LOADING MESSAGE
@@ -420,65 +453,48 @@ function main() {
             console.error(error);
         });
 
-        if (mainCharacterName === "Luar") {
+        //LOAD MAIN CHARACTER
+        if(mainCharacterName === "Luar"){
             loader.load('./Models/Characters/Luar.glb', (gltf) => {
-                luarModel = gltf.scene;
-                luarModel.position.set(60, 0, 100);
-                luarModel.scale.set(45, 45, 45);
-                luarModel.rotation.y = -1.5;
+                mainCharacter = gltf.scene;
+                mainCharacter.position.set(60, 0, 100);
+                mainCharacter.scale.set(45, 45, 45);
+                mainCharacter.rotation.y = -1.5;
             
-                luarModel.traverse(function (node) {
+                mainCharacter.traverse(function (node) {
                     if (node.isMesh) {
                         node.castShadow = true;
+                        node.receiveShadow = true;
                     }
                 });
+    
+                mixer = new THREE.AnimationMixer(mainCharacter);
+    
+                animations = gltf.animations;
+    
+                activeAction = mixer.clipAction(gltf.animations[2]);
+    
+                activeAction.play();
             
-                scene.add(luarModel);
+                scene.add(mainCharacter);
+    
+                animate();
             }, undefined, function (error) {
                 console.error(error);
             });
-
-            mainCharacter = luarModel
-        } 
-        else if (mainCharacterName === "Melinda") {
-            loader.load('./Models/Characters/Melinda.gltf', (gltf) => {
-                melindaModel = gltf.scene;
-                melindaModel.position.set(60, 0, 100);
-                melindaModel.scale.set(0.4, 0.4, 0.4);
-                melindaModel.rotation.y = -1.5;
-            
-                melindaModel.traverse(function (node) {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                    }
-                });
-            
-                scene.add(melindaModel);
-            }, undefined, function (error) {
-                console.error(error);
-            });
-
-            mainCharacter = melindaModel
         }
 
         //DIV
         const buttonsDiv = document.createElement('div');
         buttonsDiv.style.position = 'absolute';
-        buttonsDiv.style.top = '10px';  // Ajuste a posição conforme necessário
-        buttonsDiv.style.left = '10px'; // Ajuste a posição conforme necessário
+        buttonsDiv.style.top = '20px';  // Ajuste a posição conforme necessário
+        buttonsDiv.style.left = '25px'; // Ajuste a posição conforme necessário
 
         //BUTTONS
         const backButton = document.createElement('button');
         backButton.textContent = 'Back';
+        backButton.className = 'custom-button';
         buttonsDiv.appendChild(backButton);
-        
-        const music1Button = document.createElement('button');
-        music1Button.textContent = 'Music 1';
-        buttonsDiv.appendChild(music1Button);
-        
-        const music2Button = document.createElement('button');
-        music2Button.textContent = 'Music 2';
-        buttonsDiv.appendChild(music2Button);
 
         document.body.appendChild(buttonsDiv);
 
@@ -487,8 +503,42 @@ function main() {
             scene2();
         });
 
+        const messageDiv = document.createElement('div');
+        messageDiv.style.position = 'absolute';
+        messageDiv.style.bottom = '150px';
+        messageDiv.style.left = '80px';
+        messageDiv.style.color = '#ffffff';
+        messageDiv.style.fontFamily = 'Arial, sans-serif';
+        messageDiv.style.fontSize = '16px';
+
+        messageDiv.innerHTML = 'Choose today`s challenge!<br>';
+
+        document.body.appendChild(messageDiv);
+
+        const musicsDiv = document.createElement('div');
+        musicsDiv.style.position = 'absolute';
+        musicsDiv.style.bottom = '55px';
+        musicsDiv.style.left = '80px';
+        musicsDiv.style.width = '200px';
+        musicsDiv.style.marginTop = '10px';
+
+        const music1Button = document.createElement('button');
+        music1Button.textContent = musicOption1;
+        music1Button.className = 'custom-music-button';
+        musicsDiv.appendChild(music1Button);
+        
+        const music2Button = document.createElement('button');
+        music2Button.textContent = musicOption2;
+        music2Button.className = 'custom-music-button';
+        musicsDiv.appendChild(music2Button);
+
+        document.body.appendChild(musicsDiv);
+
         music1Button.addEventListener('click', () => {
             selectedMusicName = "Music1";
+            buttonsDiv.remove();
+            messageDiv.remove();
+            musicsDiv.remove();
             scene4();
         });
 
@@ -499,7 +549,8 @@ function main() {
     }
 
     function scene4(){
-        scene.remove(luarModel, melindaModel, lingoModel);
+        currentScene = scene4;
+        scene.remove(mainCharacter, lingoModel);
         scene.clear();
 
         //LOADING MESSAGE
@@ -554,20 +605,6 @@ function main() {
             });
 
             mainCharacter = luarModel;
-        } 
-        else if (mainCharacterName === "Melinda") {
-            loader.load('./Models/Characters/Melinda.gltf', (gltf) => {
-                melindaModel = gltf.scene;
-                melindaModel.position.set(-150, 4, 140);
-                melindaModel.scale.set(0.4, 0.4, 0.4);
-                melindaModel.rotation.y = 2.8;
-            
-                scene.add(melindaModel);
-            }, undefined, function (error) {
-                console.error(error);
-            });
-
-            mainCharacter = melindaModel;
         }
 
         //GAME OBJECTS
@@ -668,9 +705,99 @@ function main() {
         }
     }
 
+    function onKeyDown(event){
+
+        previousAction = activeAction;
+        
+        switch(event.code){
+            case 'KeyW':
+                activeAction = mixer.clipAction(animations[7]);
+                if(mainCharacter.rotation.y != -3.25){
+                    mainCharacter.rotation.y = -3.25;
+                }
+                mainCharacter.position.z -= characterSpeed;
+                break;
+            case 'KeyA':
+                activeAction = mixer.clipAction(animations[7]);
+                if(mainCharacter.rotation.y != -1.625){
+                    mainCharacter.rotation.y = -1.625;
+                }
+                mainCharacter.position.x -= characterSpeed;
+                break;
+            case 'KeyS':
+                activeAction = mixer.clipAction(animations[7]);
+                if (mainCharacter.rotation.y != 0) {
+                    mainCharacter.rotation.y = 0;
+                }
+                mainCharacter.position.z += characterSpeed;
+                break;
+            case 'KeyD':
+                activeAction = mixer.clipAction(animations[7]);
+                if(mainCharacter.rotation.y != 1.625){
+                    mainCharacter.rotation.y = 1.625;
+                }
+                mainCharacter.position.x += characterSpeed;
+                break;
+        }
+      
+        if(previousAction !== activeAction){
+          previousAction.fadeOut(0.5);
+          activeAction.reset()
+                      .setEffectiveTimeScale(1)
+                      .setEffectiveWeight(1)
+                      .fadeIn(0.5)
+                      .play();
+        }
+    }
+
+    function onKeyUp(event){
+
+        previousAction = activeAction;
+
+        switch (event.code) {
+            case 'KeyW':
+            case 'KeyS':
+                activeAction = mixer.clipAction(animations[2]);
+                break;
+            case 'KeyA':
+            case 'KeyD':
+                activeAction = mixer.clipAction(animations[2]);
+                break;
+        }
+      
+        if(previousAction !== activeAction){
+          previousAction.fadeOut(0.5);
+          activeAction.reset()
+                      .setEffectiveTimeScale(1)
+                      .setEffectiveWeight(1)
+                      .fadeIn(0.5)
+                      .play();
+        }
+    }
+
     // ANIMATE
     function animate() {
         requestAnimationFrame(animate);
+
+        const delta = clock.getDelta();
+        if (mixer){
+            mixer.update(delta);
+        }
+
+        if (currentScene === scene2 && mainCharacter) {
+            camera.position.copy(mainCharacter.position);
+
+            camera.position.y += 100;
+
+            //CAMERA LOOKING TO THE BACK OF THE CHARACTER
+            const angle = mainCharacter.rotation.y;
+            const distance = 200; // Ajuste esse valor conforme necessário
+            camera.position.x = mainCharacter.position.x - Math.sin(angle) * distance;
+            camera.position.z = mainCharacter.position.z - Math.cos(angle) * distance;
+
+            camera.lookAt(mainCharacter.position.x, 60, mainCharacter.position.z);
+        }
+
         renderer.render(scene, camera);
     }
     animate();
