@@ -47,6 +47,11 @@ function main() {
     let musicOption1, musicOption2;
     let selectedMusicName;
 
+    //GAME
+    let arrows = [];
+    let arrowSpeed;
+    let arrowModel;
+
     scene1();
 
     function scene1(){
@@ -462,7 +467,6 @@ function main() {
                 mainCharacter.traverse(function (node) {
                     if (node.isMesh) {
                         node.castShadow = true;
-                        node.receiveShadow = true;
                     }
                 });
     
@@ -676,11 +680,117 @@ function main() {
             console.error(error);
         });
 
+        //GENERATE ARROW
+        function generateArrow(arrowConstructor) {
+            const arrow = arrowConstructor;
+            arrows.push(arrow);
+        }
+        
+        //ARROW CONSTRUCTORS
+        class ArrowLeft {
+            constructor(arrowModel) {
+                loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //left
+                    arrowModel = gltf.scene;
+                    arrowModel.scale.set(1,1,1)
+                    arrowModel.rotation.z = -1.575
+                    scene.add(arrowModel);
+                }, undefined, function (error){
+                    console.error(error);
+                });
+                this.mesh = arrowModel.scene.clone();
+                this.mesh.position.set(-65, 250, 202); // Define uma posição inicial
+                scene.add(this.mesh);
+            }
+
+            update(deltaTime) {
+                this.mesh.position.y -= arrowSpeed * deltaTime;
+            }
+        }
+        class ArrowDown {
+            constructor() {
+                const arrowModel = null;
+                loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //down
+                    arrowModel = gltf.scene;
+                    arrowModel.scale.set(1,1,1)
+                }, undefined, function (error){
+                    console.error(error);
+                });
+                this.mesh = arrowModel.scene.clone();
+                this.mesh.position.set(-23, 250, 202);
+                scene.add(this.mesh);
+            }
+
+            update(deltaTime) {
+                this.mesh.position.y -= arrowSpeed * deltaTime;
+            }
+        }
+        class ArrowUp {
+            constructor() {
+                const arrowModel = null;
+                loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //up
+                    arrowModel = gltf.scene;
+                    arrowModel.scale.set(1,1,1)
+                    arrowModel.rotation.z = 3.15
+                }, undefined, function (error){
+                    console.error(error);
+                });
+                this.mesh = arrowModel.scene.clone();
+                this.mesh.position.set(23, 250, 202);
+                scene.add(this.mesh);
+            }
+
+            update(deltaTime) {
+                this.mesh.position.y -= arrowSpeed * deltaTime;
+            }
+        }
+        class ArrowRight {
+            constructor() {
+                const arrowModel = null;
+                loader.load('./Models/Scenario/Arrow/scene.gltf', function(gltf){ //right
+                    arrowModel = gltf.scene;
+                    arrowModel.scale.set(1,1,1)
+                    arrowModel.rotation.z = 1.575
+                }, undefined, function (error){
+                    console.error(error);
+                });
+                this.mesh = arrowModel.scene.clone();
+                this.mesh.position.set(65, 250, 202);
+                scene.add(this.mesh);
+            }
+
+            update(deltaTime) {
+                this.mesh.position.y -= arrowSpeed * deltaTime;
+            }
+        }
+        class MiddleButton {
+            constructor() {
+                const arrowModel = null;
+                loader.load('./Models/Scenario/Middle_Button/scene.gltf', function(gltf){ //right
+                    scene.add(gltf.scene);
+                    gltf.scene.scale.set(8,8,8)
+                    gltf.scene.rotation.x = -0.25
+                }, undefined, function (error){
+                    console.error(error);
+                });
+                this.mesh = arrowModel.scene.clone();
+                this.mesh.position.set(3, 250, 180);
+                scene.add(this.mesh);
+            }
+
+            update(deltaTime) {
+                this.mesh.position.y -= arrowSpeed * deltaTime;
+            }
+        }
+
         if(selectedMachineName === "Machine1"){
             switch (selectedMusicName) {
                 case "Music1":
                     backgroundMusic.src = "./Music/bonbonchocolat_everglow.mp3";
                     backgroundMusic.play();
+                    arrowSpeed = 0.5;
+                    setTimeout(() => {
+                        generateArrow(new ArrowLeft(arrowModel));
+                    }, 3000);
                     break;
                 case "Music2":
                     backgroundMusic.src = "./Music/getlucky_daftpunk.mp3";
@@ -797,6 +907,17 @@ function main() {
             camera.position.z = mainCharacter.position.z - Math.cos(angle) * distance;
 
             camera.lookAt(mainCharacter.position.x, 60, mainCharacter.position.z);
+        }
+
+        if(currentScene === scene4 && arrows.length != 0){
+            console.log("game on");
+            for (let i = arrows.length - 1; i >= 0; i--) {
+                arrows[i].update(delta);
+                if (arrows[i].mesh.position.y < -100) {
+                    scene.remove(arrows[i].mesh);
+                    arrows.splice(i, 1);
+                }
+            }
         }
 
         renderer.render(scene, camera);
